@@ -1,41 +1,39 @@
-# [Choice] Python version (use -bullseye variants on local arm64/Apple Silicon): 3, 3.10, 3.9, 3.8, 3.7, 3.6, 3-bullseye, 3.10-bullseye, 3.9-bullseye, 3.8-bullseye, 3.7-bullseye, 3.6-bullseye, 3-buster, 3.10-buster, 3.9-buster, 3.8-buster, 3.7-buster, 3.6-buster
-ARG VARIANT=3-bullseye
-FROM mcr.microsoft.com/vscode/devcontainers/python:${VARIANT}
+FROM tensorflow/tensorflow:latest-gpu-jupyter
 
-# [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
-# COPY requirements.txt /tmp/pip-tmp/
-# RUN pip3 --disable-pip-version-check --no-cache-dir install -r /tmp/pip-tmp/requirements.txt \
-#    && rm -rf /tmp/pip-tmp
+RUN mkdir -p /tmp/library-scripts
 
-# [Optional] Uncomment this section to install additional OS packages.
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends python3-opencv ffmpeg libsm6 libxext6
+# Copy library scripts to execute
+COPY library-scripts/*.sh library-scripts/*.env /tmp/library-scripts/
+
+# [Option] Install zsh
+ARG INSTALL_ZSH="true"
+# [Option] Upgrade OS packages to their latest versions
+ARG UPGRADE_PACKAGES="true"
+# Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    # Remove imagemagick due to https://security-tracker.debian.org/tracker/CVE-2019-10131
+    && apt-get purge -y imagemagick imagemagick-6-common \
+    # Install common packages, non-root user
+    && bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
+    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+RUN apt install software-properties-common
+
+# Setup default python tools in a venv via pipx to avoid conflicts
+# ENV PIPX_HOME=/usr/local/py-utils \
+#    PIPX_BIN_DIR=/usr/local/py-utils/bin
+# ENV PATH=${PATH}:${PIPX_BIN_DIR}
+# RUN bash /tmp/library-scripts/python-debian.sh "none" "/usr/local" "${PIPX_HOME}" "${USERNAME}" \
+#    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+# Remove library scripts for final image
+RUN rm -rf /tmp/library-scripts
+
+# apt-get installations
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends software-properties-common python3-opencv ffmpeg libsm6 libxext6
 
 RUN pip install --upgrade pip
 RUN pip install opencv-python tensorflow keras pandas pillow scipy
-
-# Add NVIDIA package repositories
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
-RUN mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-RUN add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
-RUN apt-get update
-
-RUN wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
-
-RUN apt -y install --no-install-recommends ./nvidia-machine-learning-repo-ubuntu1804_1.0.0-1_amd64.deb
-RUN apt-get update
-
-RUN wget https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
-RUN apt -y install --no-install-recommends ./libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
-RUN apt-get update
-
-# Install development and runtime libraries (~4GB)
-RUN apt-get -y install --no-install-recommends \
-    cuda-11-0 \
-    libcudnn8=8.0.4.30-1+cuda11.0  \
-    libcudnn8-dev=8.0.4.30-1+cuda11.0
-
-# Install TensorRT. Requires that libcudnn8 is installed above.
-RUN apt-get install -y --no-install-recommends libnvinfer7=7.1.3-1+cuda11.0 \
-    libnvinfer-dev=7.1.3-1+cuda11.0 \
-    libnvinfer-plugin7=7.1.3-1+cuda11.0
