@@ -2,5 +2,3 @@ FROM tensorflow/tensorflow
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends python3-opencv
-
-RUN pip3 install keras
