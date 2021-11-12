@@ -15,4 +15,4 @@ RUN if [ "${NODE_VERSION}" != "none" ]; then su vscode -c "umask 0002 && . /usr/
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends python3-opencv ffmpeg libsm6 libxext6
 
 RUN pip install --upgrade pip
-RUN pip install opencv-python tensorflow keras
+RUN pip install opencv-python tensorflow keras pandas pillow scipy
