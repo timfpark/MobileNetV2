@@ -8,7 +8,7 @@ import pandas as pd
 
 from mobilenet_v2 import MobileNetv2
 
-from keras.optimizers import Adam
+from keras.optimizers import adam_v2
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, Reshape, Activation
@@ -142,7 +142,7 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
     else:
         model = MobileNetv2((size, size, 3), num_classes)
 
-    opt = Adam()
+    opt = adam_v2.Adam()
     earlystop = EarlyStopping(monitor='val_acc', patience=30, verbose=0, mode='auto')
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
