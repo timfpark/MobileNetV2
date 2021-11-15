@@ -146,7 +146,7 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
     earlystop = EarlyStopping(monitor='val_acc', patience=30, verbose=0, mode='auto')
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
-    hist = model.fit_generator(
+    hist = model.fit(
         train_generator,
         validation_data=validation_generator,
         steps_per_epoch=count1 // batch,
@@ -157,9 +157,9 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
     if not os.path.exists('model'):
         os.makedirs('model')
 
-    df = pd.DataFrame.from_dict(hist.history)
-    df.to_csv('model/hist.csv', encoding='utf-8', index=False)
-    model.save('model/model.h5')
+    # df = pd.DataFrame.from_dict(hist.history)
+    # df.to_csv('model/hist.csv', encoding='utf-8', index=False)
+    model.save('model/camera_model')
 
 
 if __name__ == '__main__':
