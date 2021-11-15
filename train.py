@@ -14,8 +14,6 @@ from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, Reshape, Activation
 from keras.models import Model, load_model
 
-import keras2onnx
-
 def main(argv):
     parser = argparse.ArgumentParser()
     # Required arguments.
@@ -160,10 +158,7 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
 
     # df = pd.DataFrame.from_dict(hist.history)
     # df.to_csv('model/hist.csv', encoding='utf-8', index=False)
-    model.save('model/model.h5')
-
-    onnx_model = keras2onnx.convert_keras(model, model.name)
-    keras2onnx.save_model(onnx_model, 'model.onnx')
+    model.save('model')
 
 if __name__ == '__main__':
     main(sys.argv)
