@@ -12,7 +12,7 @@ from keras.optimizers import adam_v2
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import EarlyStopping
 from keras.layers import Conv2D, Reshape, Activation
-from keras.models import Model
+from keras.models import Model, load_model
 
 
 def main(argv):
@@ -154,13 +154,14 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
         epochs=epochs,
         callbacks=[earlystop])
 
-    # if not os.path.exists('model'):
-    #    os.makedirs('model')
+    if not os.path.exists('model'):
+        os.makedirs('model')
 
     # df = pd.DataFrame.from_dict(hist.history)
     # df.to_csv('model/hist.csv', encoding='utf-8', index=False)
-    model.save('model')
+    model.save('model/model.h5')
 
+    new_model = load_model('model/model.h5')
 
 if __name__ == '__main__':
     main(sys.argv)
