@@ -159,7 +159,7 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
 
     df = pd.DataFrame.from_dict(hist.history)
     df.to_csv('model/hist.csv', encoding='utf-8', index=False)
-    model.save_weights('model/weights.h5')
+    model.save('model/model.h5')
 
 
 if __name__ == '__main__':
