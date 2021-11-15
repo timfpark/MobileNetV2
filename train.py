@@ -154,12 +154,12 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
         epochs=epochs,
         callbacks=[earlystop])
 
-    if not os.path.exists('model'):
-        os.makedirs('model')
+    # if not os.path.exists('model'):
+    #    os.makedirs('model')
 
     # df = pd.DataFrame.from_dict(hist.history)
     # df.to_csv('model/hist.csv', encoding='utf-8', index=False)
-    model.save('model/camera_model')
+    model.save('model')
 
 
 if __name__ == '__main__':
