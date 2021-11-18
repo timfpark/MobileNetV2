@@ -120,6 +120,29 @@ def fine_tune(num_classes, weights, model):
 
     return model
 
+def pad_and_resize(image_path, pad=True, desired_size=224):
+    def get_pad_width(im, new_shape, is_rgb=True):
+        pad_diff = new_shape - im.shape[0], new_shape - im.shape[1]
+        t, b = math.floor(pad_diff[0]/2), math.ceil(pad_diff[0]/2)
+        l, r = math.floor(pad_diff[1]/2), math.ceil(pad_diff[1]/2)
+        if is_rgb:
+            pad_width = ((t,b), (l,r), (0, 0))
+        else:
+            pad_width = ((t,b), (l,r))
+        return pad_width
+
+    img = cv2.imread(image_path)
+
+    if pad:
+        pad_width = get_pad_width(img, max(img.shape))
+        padded = np.pad(img, pad_width=pad_width, mode='constant', constant_values=0)
+    else:
+        padded = img
+
+    padded = cv2.cvtColor(padded, cv2.COLOR_BGR2RGB)
+    resized = cv2.resize(padded, (desired_size,)*2).astype('uint8')
+
+    return resized
 
 def train(batch, epochs, num_classes, size, weights, tclasses):
     """Train the model.
@@ -158,6 +181,12 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
 
     # df = pd.DataFrame.from_dict(hist.history)
     # df.to_csv('model/hist.csv', encoding='utf-8', index=False)
+
+    test_image = pad_and_resize('data/validation/1/03-20211112203414-01.jpg')
+
+    result = model.predict([test_image])
+    print(result.argmax(axis=1))
+
     model.save('model')
 
 if __name__ == '__main__':
