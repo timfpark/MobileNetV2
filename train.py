@@ -184,8 +184,7 @@ def train(batch, epochs, num_classes, size, weights, tclasses):
     # df = pd.DataFrame.from_dict(hist.history)
     # df.to_csv('model/hist.csv', encoding='utf-8', index=False)
 
-    test_image = pad_and_resize('data/validation/1/03-20211112203414-01.jpg')
-    print(test_image)
+    test_image = pad_and_resize('data/validation/1/12-20211112225831-00.jpg', pad=False)
 
     result = model.predict([test_image])
     print(result.argmax(axis=1))
