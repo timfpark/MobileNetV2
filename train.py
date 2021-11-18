@@ -6,6 +6,8 @@ import sys
 import argparse
 import pandas as pd
 
+import cv2
+
 from mobilenet_v2 import MobileNetv2
 
 from keras.optimizers import adam_v2
